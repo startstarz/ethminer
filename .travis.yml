@@ -19,17 +19,6 @@ matrix:
           env:
               - CUDA=ON
               - CUDA_VERSION=9
-        - os: linux
-          dist: trusty
-          sudo: required
-          env:
-              - CUDA=ON
-              - CUDA_VERSION=8
-        - os: osx
-          osx_image: xcode9.2
-          env:
-              - CUDA=ON
-              - CUDA_VERSION=9
 cache:
     directories:
         - $HOME/.local
