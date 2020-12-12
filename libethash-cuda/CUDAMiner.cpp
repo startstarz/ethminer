@@ -50,7 +50,7 @@ CUDAMiner::~CUDAMiner()
 
 bool CUDAMiner::initDevice()
 {
-if (g_logOptions>0){
+if (g_foreground){
     cudalog << "Using Pci Id : " << m_deviceDescriptor.uniqueId << " " << m_deviceDescriptor.cuName
                 << " (Compute " + m_deviceDescriptor.cuCompute + ") Memory : "
                 << dev::getFormattedMemory((double)m_deviceDescriptor.totalMemory);
@@ -67,7 +67,7 @@ if (g_logOptions>0){
     }
     catch (const cuda_runtime_error& ec)
     {
-if (g_logOptions>0){
+if (g_foreground){
         cudalog << "Could not set CUDA device on Pci Id " << m_deviceDescriptor.uniqueId
                 << " Error : " << ec.what();
         cudalog << "Mining aborted on this device.";
@@ -113,7 +113,7 @@ bool CUDAMiner::initEpoch_internal()
             {
                 if (m_deviceDescriptor.totalMemory < RequiredDagMemory)
                 {
-if (g_logOptions>0){
+if (g_foreground){
                     cudalog << "Epoch " << m_epochContext.epochNumber << " requires "
                             << dev::getFormattedMemory((double)RequiredDagMemory) << " memory.";
                     cudalog << "This device hasn't enough memory available. Mining suspended ...";
@@ -126,7 +126,7 @@ if (g_logOptions>0){
                     lightOnHost = true;
             }
 
-if (g_logOptions>0){
+if (g_foreground){
                 cudalog << "Generating DAG + Light(on " << (lightOnHost ? "host" : "GPU")
                     << ") : " << dev::getFormattedMemory((double)RequiredTotalMemory);
 }
@@ -135,7 +135,7 @@ if (g_logOptions>0){
             {
                 CUDA_SAFE_CALL(cudaHostAlloc(reinterpret_cast<void**>(&light),
                     m_epochContext.lightSize, cudaHostAllocDefault));
-if (g_logOptions>0) {
+if (g_foreground) {
                     cudalog << "WARNING: Generating DAG will take minutes, not seconds";
 }
             }
@@ -155,7 +155,7 @@ if (g_logOptions>0) {
         }
         else
         {
-if (g_logOptions>0) {
+if (g_foreground) {
                 cudalog << "Generating DAG + Light (reusing buffers): "
                     << dev::getFormattedMemory((double)RequiredTotalMemory);
 }
@@ -171,7 +171,7 @@ if (g_logOptions>0) {
         ethash_generate_dag(
             m_epochContext.dagSize, m_settings.gridSize, m_settings.blockSize, m_streams[0]);
 
-if (g_logOptions>0){
+if (g_foreground){
             cudalog << "Generated DAG + Light in "
                 << std::chrono::duration_cast<std::chrono::milliseconds>(
                        std::chrono::steady_clock::now() - startInit)
@@ -186,7 +186,7 @@ if (g_logOptions>0){
     }
     catch (const cuda_runtime_error& ec)
     {
-if (g_logOptions>0) {
+if (g_foreground) {
         cudalog << "Unexpected error " << ec.what() << " on CUDA device "
                 << m_deviceDescriptor.uniqueId;
         cudalog << "Mining suspended ...";
@@ -275,18 +275,18 @@ int CUDAMiner::getNumDevices()
         int driverVersion = 0;
         cudaDriverGetVersion(&driverVersion);
         if (driverVersion == 0)
-if (g_logOptions>0){
+if (g_foreground){
             std::cerr << "CUDA Error : No CUDA driver found" << std::endl;
 }
         else
-if (g_logOptions>0){
+if (g_foreground){
             std::cerr << "CUDA Error : Insufficient CUDA driver " << std::to_string(driverVersion)
                       << std::endl;
 }
     }
     else
     {
-if (g_logOptions>0){
+if (g_foreground){
         std::cerr << "CUDA Error : " << cudaGetErrorString(err) << std::endl;
 }
     }
@@ -310,7 +310,7 @@ void CUDAMiner::enumDevices(std::map<string, DeviceDescriptor>& _DevicesCollecti
             size_t freeMem, totalMem;
             CUDA_SAFE_CALL(cudaGetDeviceProperties(&props, i));
             CUDA_SAFE_CALL(cudaMemGetInfo(&freeMem, &totalMem));
-//if (g_logOptions>0){
+//if (g_foreground){
             s << setw(2) << setfill('0') << hex << props.pciBusID << ":" << setw(2)
               << props.pciDeviceID << ".0";
 //}
@@ -338,7 +338,7 @@ void CUDAMiner::enumDevices(std::map<string, DeviceDescriptor>& _DevicesCollecti
         }
         catch (const cuda_runtime_error& _e)
         {
-if (g_logOptions>0) {
+if (g_foreground) {
             std::cerr << _e.what() << std::endl;
 }
         }
@@ -437,7 +437,7 @@ void CUDAMiner::search(
 
                     Farm::f().submitProof(
                         Solution{nonce, mixes[i], w, std::chrono::steady_clock::now(), m_index});
-if (g_logOptions>0) {
+if (g_foreground) {
                     cudalog << EthWhite << "Job: " << w.header.abridged() << " Sol: 0x"
                             << toHex(nonce) << EthReset;
 }

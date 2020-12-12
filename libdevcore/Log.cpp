@@ -36,6 +36,8 @@ unsigned g_logOptions = 0;
 bool g_logNoColor = false;
 bool g_logSyslog = false;
 bool g_logStdout = false;
+bool g_foreground = false;
+
 
 const char* LogChannel::name()
 {
@@ -62,7 +64,7 @@ LogOutputStreamBase::LogOutputStreamBase(char const* _id)
             char buf[24];
             if (strftime(buf, 24, "%X", localtime(&rawTime)) == 0)
                 buf[0] = '\0';  // empty if case strftime fails
-            if (g_logOptions>0) {
+            if (g_foreground) {
                 m_sstr << _id << " " EthViolet << buf << " " EthBlue << std::left << std::setw(8)
                    << getThreadName() << " " EthReset;
             }
