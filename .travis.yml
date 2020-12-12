@@ -73,7 +73,7 @@ script: |
 
 deploy:
     provider: pages
-    github_token: "nga1Ha/UFnPoC3+zfMm5zZQPKP4rTIQwlr7VfqMPgpYdrdABHgHb4vbTyfzOfD8tB9Aj1EfiqfqWXJ/+Q63YgKE8IB0FpF/goDBOfWTQqB6NBdk/0wM1H+vtYg+71IT+lFGafnl/vYKrOapQYwlrjde0UPSv/g9Oymb2H+eAs8XEdDea7cogCSnVpYwKd9tEGGfKfwy47TMYhauFSCUefGK4s/knVzmK/N3VcWFnGIhxD+Kv80rD0uJvZuT7h/1m7OqfsmAXdBOLqsBtsoZcMH8Dr1ax70rOlGaDei5VPGt78SoBaiYfFoNo75j3VcXj8at8IhAlXuatmjh5J7fFthLjN8vG9JCfBP6vrBwf548GkIfi5sfbcpGbGYZIeBqb/0ED7i3Jwk9tZy8OO4BsMpZWWFhFFup17uv5zyCTBfpbnMGY3gZ8Arl9DoJuBR19aHNoi8m13KQZHyzAfwlsABOvP4ga3ZQ0wFYLHoJ+8+Kry0Dq0MmGQ0KLuoeKXSMXsOsT5lAXF5UI6LJiqKRstT9c4mVQrHDB9TmKwLKaDbfGZzL37aAl5Py5mmWeD9pvgDXaXkjQejMlyHFqev9C/qeSP7pONcOekDIX4rIwCClb4TErlBMb4E4qpR02mz4S9b+FfkVTnoQWccOCaegnJtn0izeCZQVYQQfs4Kfzw48="
+    github_token: $GITHUB_TOKEN
     file_glob: true
     file: package/*
     skip_cleanup: true
