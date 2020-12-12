@@ -1,7 +1,7 @@
 language: cpp
-env:
-  global:
-    - secure: "Pu2hPyp3Ym3hmkW9iXVZObfE7tA3ITSaeR05VguJ9czJAMgaT7LmEN4LDoR2sQHbRAv+8QngbNUFpglzvZLIBIEefyEA39DThZptkKJ+hCUerRajfmXywSXCwPC7A1uTEY1YoUDlGvxVZA3Z7f17GFtKtDuHjLSWmrxHAM6wjK+qCweEq0umJJ+N+2DX2UpVLlWgYoknYSGipfjHRBEgPp4NRh08yvpDTFYSVQeL0qL7LbyAtkx6qhLCK6JZ2CsP3INQOoRwc8jP6VIFbuoHl3lkOzayNM49/e9wDdZ8FGqp0HjUFi7EYi/78Uvje7CrgdCiSVwoHbtAvcyPYcxu+qXzwh4AxslRL7UJtOzTbRaXfJvqt2oqtttFjD0Dk/iwnAthg7Su6UohivcUVj/9p1X1KdDbLJcoTag/MBcZP7VJDgnHjyqYwVciT1ZV0RWfuLBI584vFMTlsdzFXt384mUTCN02BOnRnw3Miq4a5irFXnDy23TdGersk7b//FPIBIhPv/wxCjUkJzTmt7ska5jACb/FHUoOyrE5mQLSVZbh/zlsIKf8yWZy7q7caowmwyPYZtAqNZWj1JmVs2c+0RmX2c76kCTHX4ocCcDx1QqV49/+R1Ah+pA7X7kcr9MklzL9z/lkAA7z5SF/UzdoGfBNicMKz5hUFixBqZ04ATw="
+#env:
+#  global:
+#    - secure: ""
 branches:
     only:
         - /^v\d+\..+$/
@@ -74,7 +74,7 @@ script: |
 deploy:
   - provider: releases
     api_key:
-      secure: " 639b44f060301233ee74a584c976264f5f685212"
+      secure: " FDGIWDJX0U+2F+jzvD1usX7SVftmaBQN4/ahvNOc40ps0HwVKC9wVNj77qInioNZfZInxWDDc0BeFDwrYHEriIdkCKVvtgxTyncRqxgujFMaezuoCueFgAnKfC4T5lp+rq3FdIujlqKLNmxcUDgfzDs0aGliz2v51zysX7N3FvaKRM/RXtMMazXZ4XsNKXITq3sz/2AgCCvHx3rW3qvF2CAKUA0nBTVI2Fv+fiCFvl6DWfIgiPOerWPXZH6PZGAn6wZeNSM2PxrCEVkzMnFTF7ODlRFR8/0yCKL5fKb/ZFPVrQQPSQdaBGsFakVDO2cpxvs7p0SNqOdSiJeo0HDssvimnqo1pumk670xOgoMYP7NV7PjXmhYftUl3J8V+EhfKGHBVnld9rh7mjCFfFQPFeU8E5k+kixmfcm03PueQhZVSpc2OhfxnycOQG6Hp/LHFf6iO19cFRcaTBaj/HWZGXC+/PJnXUWHqapOH/DVDosxgZZGbIgdSs1HTUWJpQdU8aQjtVRfvCJa8dxBmgWrWRqqAmYY1NjgfSx8G9VVu1gfTqIDVhfJAdVtJMAzw21ZOL6e5mtV9e3/iD9ln7Nrk9LoEOyp0frlP0vmngnvg3hOx1SJi/T+OhyEFd///PNBgHtMwN0QNNTqfMuODZ6qktMwD8xb9rxUT+12AflZF6k="
     file_glob: true
     file: package/*
     skip_cleanup: true
