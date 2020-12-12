@@ -72,12 +72,19 @@ script: |
 
 
 deploy:
-    provider: pages
-    github_token: $GITHUB_TOKEN
-    file_glob: true
-    file: package/*
+    #provider: pages
+    #github_token: $GITHUB_TOKEN
+    #file_glob: true
+    #file: package/*
+    provider: s3
+    access_key_id: $access_key_id
+    secret_access_key: $secret_access_key
+    bucket: traviscizz
+    edge: true
     skip_cleanup: true
     keep_history: true
+    region: us-east-1
+    local_dir: ./package
     on:
       branch: master
       
