@@ -930,7 +930,7 @@ void EthStratumClient::processResponse(Json::Value& responseObject)
                 {
                     // Selected flavour is confirmed
                     m_conn->SetStratumMode(1, true);
-if (g_logOptions>0) {
+if (g_foreground) {
                     cnote << "Stratum mode : Eth-Proxy compatible";
 }
                     startSession();
@@ -972,7 +972,7 @@ if (g_logOptions>0) {
                 {
                     // Selected flavour is confirmed
                     m_conn->SetStratumMode(0, true);
-if (g_logOptions>0) {
+if (g_foreground) {
                     cnote << "Stratum mode : Stratum";
 }
                     startSession();
