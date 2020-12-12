@@ -14,7 +14,8 @@ branches:
 matrix:
     include:
         - os: linux
-          dist: trusty
+          #dist: trusty
+          dist: precise
           sudo: required
           env:
               - CUDA=ON
