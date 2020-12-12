@@ -15,7 +15,8 @@ matrix:
     include:
         - os: linux
           #dist: trusty
-          dist: precise
+          #dist: precise
+          dist: el/7
           sudo: required
           env:
               - CUDA=ON
@@ -32,19 +33,23 @@ before_install:
     fi
   - |
     if [ "$TRAVIS_OS_NAME" = linux ]; then
-      sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test
-      sudo apt-get -q update
+            yum install make -y
+        yum groupinstall "Development Tools" -y
+      yum update -y && yum install git wget bzip2 vim gcc-c++ ntp epel-release nodejs cmake libstdc++ ncurses-libs gcc gcc-c++ kernel-devel -y
+      #sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test
+      #sudo apt-get -q update
       if [ "$CUDA_VERSION" = "8" ]; then
-        sudo apt-get -qy install g++-5
-        export CC=gcc-5
-        export CXX=g++-5
+        #sudo apt-get -qy install g++-5
+        #export CC=gcc-5
+        #export CXX=g++-5
       else
-        sudo apt-get -qy install g++-6
-        export CC=gcc-6
-        export CXX=g++-6
+        #sudo apt-get -qy install g++-6
+        #export CC=gcc-6
+        #export CXX=g++-6
       fi
       scripts/install_cmake.sh
-      . scripts/install-cuda-ubuntu1604.sh $CUDA_VERSION
+      #. scripts/install-cuda-ubuntu1604.sh $CUDA_VERSION
+      . scripts/install_cuda_centos7.sh $CUDA_VERSION
       pyenv global 3.6
       pip install --user requests gitpython
     elif [ "$TRAVIS_OS_NAME" == "osx" ]; then
