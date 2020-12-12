@@ -18,7 +18,7 @@ matrix:
           sudo: required
           env:
               - CUDA=ON
-              - CUDA_VERSION=9
+              - CUDA_VERSION=8
 cache:
     directories:
         - $HOME/.local
