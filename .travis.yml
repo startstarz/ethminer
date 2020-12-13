@@ -42,7 +42,7 @@ before_install:
       sudo yum groupinstall -y "Development Tools"
       sudo yum install -y git wget bzip2 vim ntp nodejs cmake libstdc++ ncurses-libs gcc gcc-c++ kernel-devel
       sudo yum install -y zlib-devel bzip2-devel openssl-devel ncurses-devel sqlite-devel readline-devel tk-devel gdbm-devel db4-devel libpcap-devel xz-devel
-      sudo yum install -y libstdc++-static 
+      sudo yum install -y libstdc++-static glibc-static
       
       # update git to version 2
       yum install -y http://opensource.wandisco.com/centos/7/git/x86_64/wandisco-git-release-7-1.noarch.rpm
@@ -57,6 +57,9 @@ before_install:
       sudo yum install -y devtoolset-7-toolchain
       scl enable devtoolset-7 bash
 
+
+      yum install subscription-manager -y
+
       #sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test
       #sudo apt-get -q update
       #if [ "$CUDA_VERSION" = "8" ]; then
@@ -69,7 +72,7 @@ before_install:
         #export CXX=g++-6
       #fi
       sh scripts/install_cmake.sh
-      export PATH=/home/asd63zhengzeyu/.local/bin:$PATH
+      export PATH=$HOME/.local/bin:$PATH
       #. scripts/install-cuda-ubuntu1604.sh $CUDA_VERSION
       . scripts/install_cuda_centos7.sh $CUDA_VERSION
       
