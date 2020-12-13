@@ -31,14 +31,25 @@ if [ -z $CUDA_PACKAGE ]; then
   CUDA_PACKAGE=cuda-nvcc
 fi
 
-wget http://developer.download.nvidia.com/compute/cuda/repos/rhel7/x86_64/cuda-repo-rhel7-${CUDA_VER}.x86_64.rpm
-sudo rpm -i cuda-repo-rhel7-${CUDA_VER}.x86_64.rpm
+
+
 # wget http://developer.download.nvidia.com/compute/cuda/repos/rhel7/x86_64/cuda-repo-rhel7-8.0.61-1.x86_64.rpm
 #wget https://developer.download.nvidia.com/compute/cuda/11.1.0/local_installers/cuda-repo-rhel7-11-1-local-11.1.0_455.23.05-1.x86_64.rpm
 #sudo rpm -i cuda-repo-rhel7-11-1-local-11.1.0_455.23.05-1.x86_64.rpm
+#wget http://developer.download.nvidia.com/compute/cuda/repos/rhel7/x86_64/cuda-repo-rhel7-${CUDA_VER}.x86_64.rpm
+#sudo rpm -i cuda-repo-rhel7-${CUDA_VER}.x86_64.rpm
+#sudo yum clean all
+#sudo yum -y install nvidia-driver-latest-dkms cuda
+#sudo yum -y install cuda-drivers
+
+#wget https://developer.nvidia.com/compute/cuda/9.0/Prod/local_installers/cuda_9.0.176_384.81_linux-run
+#sudo sh cuda_9.0.176_384.81_linux-run --override --toolkit --silent
+
+wget https://developer.download.nvidia.com/compute/cuda/10.1/Prod/local_installers/cuda-repo-rhel7-10-1-local-10.1.243-418.87.00-1.0-1.x86_64.rpm
+sudo rpm -i cuda-repo-rhel7-10-1-local-10.1.243-418.87.00-1.0-1.x86_64.rpm
 sudo yum clean all
-sudo yum -y install nvidia-driver-latest-dkms cuda
-sudo yum -y install cuda-drivers
+sudo yum -y install cuda-10-1
+
 sudo yum -y install mesa-libGL-devel
 
 #sudo apt-get install -qy $CUDA_PACKAGE-$CUDA_APT cuda-cudart-dev-$CUDA_APT
