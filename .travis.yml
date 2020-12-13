@@ -16,7 +16,8 @@ matrix:
         - os: linux
           #dist: trusty
           #dist: precise
-          dist: el/7
+          #dist: el/7
+          dist: centos/7
           sudo: required
           env:
               - CUDA=ON
