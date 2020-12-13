@@ -39,15 +39,15 @@ sudo rpm -i cuda-repo-rhel7-${CUDA_VER}.x86_64.rpm
 sudo yum clean all
 sudo yum -y install nvidia-driver-latest-dkms cuda
 sudo yum -y install cuda-drivers
+sudo yum -y install mesa-libGL-devel
 
-CUDA_APT=$(echo $CUDA_VER | sed 's/\.[0-9]\+\-[0-9]\+$//;s/\./-/')
-
-export PATH=/usr/local/cuda-8.0/bin${PATH:+:${PATH}}
-                         
 #sudo apt-get install -qy $CUDA_PACKAGE-$CUDA_APT cuda-cudart-dev-$CUDA_APT
 #sudo apt-get clean
 
-CUDA_APT=$(echo $CUDA_APT | sed 's/-/./')
-export CUDA_HOME=/usr/local/cuda-$CUDA_APT
+#CUDA_APT=$(echo $CUDA_VER | sed 's/\.[0-9]\+\-[0-9]\+$//;s/\./-/')
+#CUDA_APT=$(echo $CUDA_APT | sed 's/-/./')
+export CUDA_HOME=/usr/local/cuda
 export PATH=${CUDA_HOME}/bin:${PATH}
+export PATH=/usr/local/cuda/bin${PATH:+:${PATH}}
 export LD_LIBRARY_PATH=/usr/local/cuda-$CUDA_APT/lib64:${LD_LIBRARY_PATH}
+export LD_LIBRARY_PATH=/usr/local/cuda/lib64:${LD_LIBRARY_PATH}
