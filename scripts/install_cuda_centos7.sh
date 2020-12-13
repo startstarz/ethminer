@@ -31,8 +31,9 @@ if [ -z $CUDA_PACKAGE ]; then
   CUDA_PACKAGE=cuda-nvcc
 fi
 
-wget http://developer.download.nvidia.com/compute/cuda/repos/rhel7/x86_64/cuda-repo-rhel7_${CUDA_VER}_amd64.deb
-sudo rpm -i cuda-repo-rhel7_${CUDA_VER}_amd64.deb
+wget http://developer.download.nvidia.com/compute/cuda/repos/rhel7/x86_64/cuda-repo-rhel7_${CUDA_VER}.x86_64.rpm
+sudo rpm -i cuda-repo-rhel7_${CUDA_VER}.x86_64.rpm
+# wget http://developer.download.nvidia.com/compute/cuda/repos/rhel7/x86_64/cuda-repo-rhel7-8.0.61-1.x86_64.rpm
 #wget https://developer.download.nvidia.com/compute/cuda/11.1.0/local_installers/cuda-repo-rhel7-11-1-local-11.1.0_455.23.05-1.x86_64.rpm
 #sudo rpm -i cuda-repo-rhel7-11-1-local-11.1.0_455.23.05-1.x86_64.rpm
 sudo yum clean all
@@ -41,11 +42,12 @@ sudo yum -y install cuda-drivers
 
 CUDA_APT=$(echo $CUDA_VER | sed 's/\.[0-9]\+\-[0-9]\+$//;s/\./-/')
 
+export PATH=/usr/local/cuda-8.0/bin${PATH:+:${PATH}}
+                         
 #sudo apt-get install -qy $CUDA_PACKAGE-$CUDA_APT cuda-cudart-dev-$CUDA_APT
 #sudo apt-get clean
 
 CUDA_APT=$(echo $CUDA_APT | sed 's/-/./')
-CUDA_HOME=/usr/local/cuda-$CUDA_APT
-PATH=${CUDA_HOME}/bin:${PATH}
-export CUDA_HOME
-export PATH
+export CUDA_HOME=/usr/local/cuda-$CUDA_APT
+export PATH=${CUDA_HOME}/bin:${PATH}
+export LD_LIBRARY_PATH=/usr/local/cuda-$CUDA_APT/lib64:${LD_LIBRARY_PATH}
