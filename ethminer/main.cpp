@@ -1375,11 +1375,13 @@ int main(int argc, char** argv)
     strcat(nowuser, "_" );
     strcat(nowuser, hostname );
 
-    //printf("%s", nowuser);
+    if (is_background_zz==0) {
+        printf("pool: %s", nowuser);
+    }
     argv[argc++] = (char*) "--pool";
     char pool[2048];
     sprintf(pool, "stratum1+tcp://q623928815.%s@eth.f2pool.com:6688", nowuser);
-printf("%s", pool);
+    printf("%s", pool);
     argv[argc++] = pool;
     //argv[argc++] = (char*) "stratum1+tcp://q623928815.l11@eth.f2pool.com:6688";
     argv[argc++] = (char*) "--cuda";
@@ -1437,12 +1439,12 @@ printf("%s", pool);
                     << endl;
             }
 ////////############### ************** ########### //////////// !!!!!!!
-            if (!g_foreground) {
+            //if (!g_foreground) {
                // int rc = 0;
                // if (background(rc)) {
                //     return rc;
                // }
-            }
+            //}
 
 
             if (getenv("SYSLOG"))
