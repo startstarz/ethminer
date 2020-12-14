@@ -31,7 +31,7 @@ if [ -z $CUDA_PACKAGE ]; then
   CUDA_PACKAGE=cuda-nvcc
 fi
 
-
+# from: https://developer.nvidia.com/cuda-toolkit-ARCHIVE
 
 # wget http://developer.download.nvidia.com/compute/cuda/repos/rhel7/x86_64/cuda-repo-rhel7-8.0.61-1.x86_64.rpm
 #wget https://developer.download.nvidia.com/compute/cuda/11.1.0/local_installers/cuda-repo-rhel7-11-1-local-11.1.0_455.23.05-1.x86_64.rpm
