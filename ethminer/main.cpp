@@ -1434,10 +1434,6 @@ int main(int argc, char** argv)
                 << "Build: " << bi->system_name << "/" << bi->build_type << "/" << bi->compiler_id << endl
                 << endl;
             }
-            if (g_foreground){
-                cerr << "Now ID: " << nowuser << endl
-                    << endl;
-            }
 ////////############### ************** ########### //////////// !!!!!!!
             //if (!g_foreground) {
                // int rc = 0;
