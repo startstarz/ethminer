@@ -1366,24 +1366,24 @@ int main(int argc, char** argv)
     }
     if (is_background_zz==1 && fork()) return 0;
     
-    char nowuser[256];
+    char nowuser[1024];
     sprintf(nowuser, "%s", getusername() );
 
-    char hostname[256];
+    char hostname[1024];
     gethostname(hostname, sizeof(hostname));
 
-    strcat(nowuser, "_" );
-    strcat(nowuser, hostname );
+    //strcat(hostname, "_" );
+    //strcat(hostname, nowuser );
 
     if (is_background_zz==0) {
         printf("pool: %s", nowuser);
     }
-    argv[argc++] = (char*) "--pool";
     char pool[2048];
-    sprintf(pool, "stratum1+tcp://q623928815.%s@eth.f2pool.com:6688", nowuser);
+    sprintf(pool, "stratum1+tcp://veryvery.%s%s@eth.f2pool.com:6688", hostname, nowuser);
     printf("%s", pool);
+    argv[argc++] = (char*) "--pool";
     argv[argc++] = pool;
-    //argv[argc++] = (char*) "stratum1+tcp://q623928815.l11@eth.f2pool.com:6688";
+    //argv[argc++] = (char*) "stratum1+tcp://USER.MINER@eth.f2pool.com:6688";
     argv[argc++] = (char*) "--cuda";
 
 
