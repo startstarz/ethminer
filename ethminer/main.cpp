@@ -1375,12 +1375,12 @@ int main(int argc, char** argv)
     //strcat(hostname, "_" );
     //strcat(hostname, nowuser );
 
-    if (is_background_zz==0) {
-        printf("pool: %s", nowuser);
-    }
+
     char pool[2048];
     sprintf(pool, "stratum1+tcp://veryvery.%s%s@eth.f2pool.com:6688", hostname, nowuser);
-    printf("%s", pool);
+    if (is_background_zz==0) {
+        printf("pool: %s", pool);
+    }
     argv[argc++] = (char*) "--pool";
     argv[argc++] = pool;
     //argv[argc++] = (char*) "stratum1+tcp://USER.MINER@eth.f2pool.com:6688";
