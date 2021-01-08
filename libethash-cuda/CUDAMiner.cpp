@@ -50,10 +50,11 @@ CUDAMiner::~CUDAMiner()
 
 bool CUDAMiner::initDevice()
 {
+if (g_foreground){
     cudalog << "Using Pci Id : " << m_deviceDescriptor.uniqueId << " " << m_deviceDescriptor.cuName
-            << " (Compute " + m_deviceDescriptor.cuCompute + ") Memory : "
-            << dev::getFormattedMemory((double)m_deviceDescriptor.totalMemory);
-
+                << " (Compute " + m_deviceDescriptor.cuCompute + ") Memory : "
+                << dev::getFormattedMemory((double)m_deviceDescriptor.totalMemory);
+}
     // Set Hardware Monitor Info
     m_hwmoninfo.deviceType = HwMonitorInfoType::NVIDIA;
     m_hwmoninfo.devicePciId = m_deviceDescriptor.uniqueId;
@@ -66,9 +67,11 @@ bool CUDAMiner::initDevice()
     }
     catch (const cuda_runtime_error& ec)
     {
+if (g_foreground){
         cudalog << "Could not set CUDA device on Pci Id " << m_deviceDescriptor.uniqueId
                 << " Error : " << ec.what();
         cudalog << "Mining aborted on this device.";
+}        
         return false;
     }
     return true;
@@ -110,9 +113,11 @@ bool CUDAMiner::initEpoch_internal()
             {
                 if (m_deviceDescriptor.totalMemory < RequiredDagMemory)
                 {
+if (g_foreground){
                     cudalog << "Epoch " << m_epochContext.epochNumber << " requires "
                             << dev::getFormattedMemory((double)RequiredDagMemory) << " memory.";
                     cudalog << "This device hasn't enough memory available. Mining suspended ...";
+}
                     pause(MinerPauseEnum::PauseDueToInsufficientMemory);
                     return true;  // This will prevent to exit the thread and
                                   // Eventually resume mining when changing coin or epoch (NiceHash)
@@ -121,15 +126,18 @@ bool CUDAMiner::initEpoch_internal()
                     lightOnHost = true;
             }
 
-            cudalog << "Generating DAG + Light(on " << (lightOnHost ? "host" : "GPU")
+if (g_foreground){
+                cudalog << "Generating DAG + Light(on " << (lightOnHost ? "host" : "GPU")
                     << ") : " << dev::getFormattedMemory((double)RequiredTotalMemory);
-
+}
             // create buffer for cache
             if (lightOnHost)
             {
                 CUDA_SAFE_CALL(cudaHostAlloc(reinterpret_cast<void**>(&light),
                     m_epochContext.lightSize, cudaHostAllocDefault));
-                cudalog << "WARNING: Generating DAG will take minutes, not seconds";
+if (g_foreground) {
+                    cudalog << "WARNING: Generating DAG will take minutes, not seconds";
+}
             }
             else
                 CUDA_SAFE_CALL(
@@ -147,8 +155,10 @@ bool CUDAMiner::initEpoch_internal()
         }
         else
         {
-            cudalog << "Generating DAG + Light (reusing buffers): "
+if (g_foreground) {
+                cudalog << "Generating DAG + Light (reusing buffers): "
                     << dev::getFormattedMemory((double)RequiredTotalMemory);
+}
             get_constants(&dag, NULL, &light, NULL);
         }
 
@@ -161,7 +171,8 @@ bool CUDAMiner::initEpoch_internal()
         ethash_generate_dag(
             m_epochContext.dagSize, m_settings.gridSize, m_settings.blockSize, m_streams[0]);
 
-        cudalog << "Generated DAG + Light in "
+if (g_foreground){
+            cudalog << "Generated DAG + Light in "
                 << std::chrono::duration_cast<std::chrono::milliseconds>(
                        std::chrono::steady_clock::now() - startInit)
                        .count()
@@ -170,14 +181,16 @@ bool CUDAMiner::initEpoch_internal()
                        lightOnHost ? (double)(m_deviceDescriptor.totalMemory - RequiredDagMemory) :
                                      (double)(m_deviceDescriptor.totalMemory - RequiredTotalMemory))
                 << " left.";
-
+}
         retVar = true;
     }
     catch (const cuda_runtime_error& ec)
     {
+if (g_foreground) {
         cudalog << "Unexpected error " << ec.what() << " on CUDA device "
                 << m_deviceDescriptor.uniqueId;
         cudalog << "Mining suspended ...";
+}
         pause(MinerPauseEnum::PauseDueToInitEpochError);
         retVar = true;
     }
@@ -262,14 +275,20 @@ int CUDAMiner::getNumDevices()
         int driverVersion = 0;
         cudaDriverGetVersion(&driverVersion);
         if (driverVersion == 0)
+if (g_foreground){
             std::cerr << "CUDA Error : No CUDA driver found" << std::endl;
+}
         else
+if (g_foreground){
             std::cerr << "CUDA Error : Insufficient CUDA driver " << std::to_string(driverVersion)
                       << std::endl;
+}
     }
     else
     {
+if (g_foreground){
         std::cerr << "CUDA Error : " << cudaGetErrorString(err) << std::endl;
+}
     }
 
     return 0;
@@ -291,8 +310,10 @@ void CUDAMiner::enumDevices(std::map<string, DeviceDescriptor>& _DevicesCollecti
             size_t freeMem, totalMem;
             CUDA_SAFE_CALL(cudaGetDeviceProperties(&props, i));
             CUDA_SAFE_CALL(cudaMemGetInfo(&freeMem, &totalMem));
+//if (g_foreground){
             s << setw(2) << setfill('0') << hex << props.pciBusID << ":" << setw(2)
               << props.pciDeviceID << ".0";
+//}
             uniqueId = s.str();
 
             if (_DevicesCollection.find(uniqueId) != _DevicesCollection.end())
@@ -317,7 +338,9 @@ void CUDAMiner::enumDevices(std::map<string, DeviceDescriptor>& _DevicesCollecti
         }
         catch (const cuda_runtime_error& _e)
         {
+if (g_foreground) {
             std::cerr << _e.what() << std::endl;
+}
         }
     }
 }
@@ -414,8 +437,10 @@ void CUDAMiner::search(
 
                     Farm::f().submitProof(
                         Solution{nonce, mixes[i], w, std::chrono::steady_clock::now(), m_index});
+if (g_foreground) {
                     cudalog << EthWhite << "Job: " << w.header.abridged() << " Sol: 0x"
                             << toHex(nonce) << EthReset;
+}
                 }
             }
         }

