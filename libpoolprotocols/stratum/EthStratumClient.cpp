@@ -1079,6 +1079,7 @@ if (g_foreground) {
             m_authpending.store(false, std::memory_order_relaxed);
             m_session->authorized.store(_isSuccess, std::memory_order_relaxed);
 
+if(g_foreground) {
             if (!isAuthorized())
             {
                 cnote << "Worker " << EthWhite << m_conn->UserDotWorker() << EthReset
@@ -1093,6 +1094,7 @@ if (g_foreground) {
                 cnote << "Authorized worker " << m_conn->UserDotWorker();
             }
         }
+}
 
         else if (_id == 3 && m_conn->StratumMode() == ETHEREUMSTRATUM2)
         {

